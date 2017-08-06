@@ -8,18 +8,46 @@ output:
 
 ## Loading and preprocessing the data
 
-
+download.file("https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip", destfile = "./repdata-data-activity.zip")
+unzip("./repdata-data-activity.zip")
+Rawdata <- read.csv("./activity.csv", colClasses=c("integer","Date","numeric"))
+str(Rawdata)
+library(dplyr)
+library(ggplot2)
+library(lattice)
 
 ## What is mean total number of steps taken per day?
 
-
+dayTot <- Rawdata %>% 
+  group_by(date) %>% 
+  summarize(DaySteps = sum(steps)) %>% 
+  na.omit()
+ggplot(dayTot, aes(date, DaySteps)) + geom_bar(stat = "identity", colour = "blue", fill = "red", width = 0.6)  + labs(title = " Steps - Total Number / Day", x = "Date", y = "Steps")
+MeanMedian <- dayTot %>% summarize(mean   = mean(DaySteps), median = median(DaySteps))
+print(MeanMedian)
 
 ## What is the average daily activity pattern?
 
-
+dataAvg <- Rawdata[complete.cases(Rawdata),]
+AvgSteps <- group_by(dataAvg, interval)
+AverageSteps <- summarise(AvgSteps, avg = mean(steps))
+ggplot(AverageSteps, aes(interval, avg)) + geom_line(colour = "blue")  + labs(title = "Avg Steps / Interval", x = "Interval", y = "Avg Steps")
+AverageSteps [which.max(AverageSteps$avg),]
 
 ## Imputing missing values
 
-
+sum(is.na(Rawdata))
+Rawdata$steps[is.na(Rawdata$steps)] <- mean(Rawdata$steps, na.rm = TRUE)
+sum(is.na(Rawdata$steps))
+TotalSteps <- group_by(Rawdata, date)
+XSteps <- summarise(TotalSteps, total = sum(steps))
+ggplot(XSteps, aes(date, total)) + geom_bar(stat = "identity", colour = "black", fill = "blue", width = 0.7)  + labs(title = " Total Steps / Each Day", x = "Date", y = "Steps Taken")
+mean(AvgSteps$steps)
+median(AvgSteps$steps)
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+weekdays <- c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
+Rawdata$date = as.factor(ifelse(is.element(weekdays(as.Date(Rawdata$date)),weekdays), "Weekday", "Weekend"))
+steps05 <- aggregate(steps ~ interval + date, Rawdata, mean)
+xyplot(steps05$steps ~ steps05$interval|steps05$date, main="Average Steps / Day / 5 Min Int",xlab="5 Min Int", ylab="Steps",layout=c(1,2), type="l")
