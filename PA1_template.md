@@ -1,4 +1,9 @@
-## Activity Monitoring Data
+---
+title: "Reproducible Research: Peer Assessment 1"
+output: 
+  html_document:
+    keep_md: true
+---
 
 ## Loading and preprocessing the data
 
@@ -11,7 +16,6 @@ Rawdata <- read.csv("./activity.csv", colClasses=c("integer","Date","numeric"))
 
 ```
 
-
 Next, looking at data structure
 
 ```{r}
@@ -19,12 +23,15 @@ str(Rawdata)
 ```
 
 Loading dplyr and ggplot2 
+
 ```{r}
 library(dplyr)
 library(lattice)
 library(ggplot2)
 
 ```
+
+## What is mean total number of steps taken per day?
 
 Calculate the total number of steps taken per day
 
@@ -43,14 +50,14 @@ ggplot(dayTot, aes(date, DaySteps)) + geom_bar(stat = "identity", colour = "blue
 ```
 
 Calculate and report the mean and median of the total number of steps taken per day
+
 ```{r}
 MeanMedian <- dayTot %>% summarize(mean   = mean(DaySteps), median = median(DaySteps))
 print(MeanMedian)
 
 ```
 
-What is the average daily activity pattern?
-Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis).
+## What is the average daily activity pattern?
 
 ```{r}
 dataAvg <- Rawdata[complete.cases(Rawdata),]
@@ -58,7 +65,6 @@ AvgSteps <- group_by(dataAvg, interval)
 AverageSteps <- summarise(AvgSteps, avg = mean(steps))
 ggplot(AverageSteps, aes(interval, avg)) + geom_line(colour = "blue")  + labs(title = "Avg Steps / Interval", x = "Interval", y = "Avg Steps")
 AverageSteps [which.max(AverageSteps$avg),]
-
 ```
 
 Imputing missing values
@@ -98,7 +104,7 @@ median(AvgSteps$steps)
 
 There are differences. Imputing NAs modifies the median and mean values.
 
-Making a panel plot containing a time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis)
+## Are there differences in activity patterns between weekdays and weekends?
 
 ```{r}
 weekdays <- c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
@@ -106,4 +112,3 @@ Rawdata$date = as.factor(ifelse(is.element(weekdays(as.Date(Rawdata$date)),weekd
 steps05 <- aggregate(steps ~ interval + date, Rawdata, mean)
 xyplot(steps05$steps ~ steps05$interval|steps05$date, main="Average Steps / Day / 5 Min Int",xlab="5 Min Int", ylab="Steps",layout=c(1,2), type="l")
 ```
-
