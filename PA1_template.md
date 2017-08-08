@@ -73,7 +73,7 @@ Making a histogram of the total number of steps taken each day
 ggplot(dayTot, aes(date, DaySteps)) + geom_bar(stat = "identity", colour = "blue", fill = "red", width = 0.6)  + labs(title = " Steps - Total Number / Day", x = "Date", y = "Steps")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
+![ ](PA1_template_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
 
 Calculate and report the mean and median of the total number of steps taken per day
 
